@@ -41,7 +41,7 @@ DEBUG = True
 # Assets Management
 ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets')
 
-ALLOWED_HOSTS = ['localhost', 'localhost:8000', '127.0.0.1', env('SERVER', default='127.0.0.1')]
+ALLOWED_HOSTS = ['localhost', 'localhost:8000', '127.0.0.1', 'smartcity23.azurewebsites.net' env('SERVER', default='127.0.0.1')]
 
 # Application definition
 
