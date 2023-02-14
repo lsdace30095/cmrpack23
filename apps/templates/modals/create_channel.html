@@ -1,0 +1,153 @@
+<div class="modal fade" id="createChannelModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New channel</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="POST" class="pop-up-form__form" id="create_channel_form"
+                      enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <label for="id_source" class="col-form-label">Channel Source</label>
+                    <select class="form-select mb-3" name="source" id="id_source">
+                        <option value="Elko" selected>Elko</option>
+                        <option value="Reno">Reno</option>
+                        <option value="Las Vegas">Las Vegas</option>
+                        <option value="Link">Link</option>
+                        <option value="Video">Video</option>
+                        <option value="Image">Image</option>
+                    </select>
+
+                    <div class="mb-3" id="input-camera-name">
+                        <label id="label_camera_name" for="id_camera_name" class="col-form-label">Camera Name</label>
+                        <input type="text" class="form-control" name="title" maxlength="150" id="id_camera_name"
+                               required>
+                    </div>
+
+                    <div class="mb-3 d-none" id="input-camera-id">
+                        <label for="id_camera_id" class="col-form-label">Camera ID</label>
+                        <input type="text" class="form-control" name="id" maxlength="150" id="id_camera_id">
+                    </div>
+
+                    <div class="mb-3" id="input-apple-hls">
+                        <label id="label_apple_hls" for="id_apple_hls" class="col-form-label">Apple HLS</label>
+                        <input type="text" class="form-control" name="apple_hls" maxlength="150" id="id_apple_hls" required>
+                    </div>
+
+                    <div class="mb-3" id="input-jpeg-url">
+                        <label id="label_jpeg_url" for="id_jpeg_url" class="col-form-label">JPEG URL</label>
+                        <input type="text" class="form-control" name="jpeg_url" maxlength="150" id="id_jpeg_url" required>
+                    </div>
+
+                    <div class="mb-3" id="input-latitude">
+                        <label for="id_latitude" class="col-form-label">Latitude</label>
+                        <input type="text" class="form-control" name="latitude" maxlength="150" id="id_latitude">
+                    </div>
+
+                    <div class="mb-3" id="input-longitude">
+                        <label for="id_longitude" class="col-form-label">Longitude</label>
+                        <input type="text" class="form-control" name="longitude" maxlength="150" id="id_longitude">
+                    </div>
+
+                    <div class="mb-3 d-none" id="input-file">
+                        <label id="label_file" for="id_file" class="form-label">Video File</label>
+                        <input type="file" class="form-control" name="file" accept="video/*" id="id_file">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="create_channel_form">Add channel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+
+        var source = $("select[name='source']");
+        var cameraName = $('#input-camera-name');
+        var appleHls = $('#input-apple-hls');
+        var jpegURL = $('#input-jpeg-url');
+        var latitude = $('#input-latitude');
+        var longitude = $('#input-longitude');
+        var file = $('#input-file');
+
+        source.change(function(){
+            var sourceElement = document.getElementById('id_source')
+
+            if(sourceElement[0].selected || sourceElement[1].selected || sourceElement[2].selected) {
+
+                appleHls.removeClass('d-none')
+                jpegURL.removeClass('d-none')
+                latitude.removeClass('d-none')
+                longitude.removeClass('d-none')
+                file.addClass('d-none')
+
+                $('#id_apple_hls').attr('required', true);
+                $('#id_jpeg_url').attr('required', true);
+                $('#id_file').attr('required', false);
+
+                $("#label_camera_name").text("Camera Name");
+                $("#label_apple_hls").text("Apple HLS");
+                $("#label_jpeg_url").text("JPEG URL");
+
+
+            } else if(sourceElement[3].selected) {
+
+                appleHls.removeClass('d-none')
+                jpegURL.addClass('d-none')
+                latitude.addClass('d-none')
+                longitude.addClass('d-none')
+                file.addClass('d-none')
+
+                $('#id_apple_hls').attr('required', true);
+                $('#id_jpeg_url').attr('required', false);
+                $('#id_file').attr('required', false);
+
+                $("#label_camera_name").text("Title");
+                $("#label_apple_hls").text("Link");
+
+            } else if (sourceElement[4].selected) {
+
+                appleHls.addClass('d-none')
+                jpegURL.addClass('d-none')
+                latitude.addClass('d-none')
+                longitude.addClass('d-none')
+                file.removeClass('d-none')
+
+                $('#id_apple_hls').attr('required', false);
+                $('#id_jpeg_url').attr('required', false);
+                $('#id_file').attr('required', true);
+
+                $('#id_file').attr('accept', 'video/*');
+
+                $("#label_camera_name").text("Video Title");
+                $("#label_file").text("Video File");
+
+            } else if (sourceElement[5].selected) {
+
+                appleHls.addClass('d-none')
+                jpegURL.addClass('d-none')
+                latitude.addClass('d-none')
+                longitude.addClass('d-none')
+                file.removeClass('d-none')
+
+                $('#id_apple_hls').attr('required', false);
+                $('#id_jpeg_url').attr('required', false);
+                $('#id_file').attr('required', true);
+
+                $('#id_file').attr('accept', 'image/*');
+
+                $("#label_camera_name").text("Image Title");
+                 $("#label_file").text("Image File");
+
+            }
+        });
+    });
+
+</script>

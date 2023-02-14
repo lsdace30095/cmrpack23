@@ -1,0 +1,182 @@
+{% extends "layouts/base.html" %}
+{% block title %} Transactions {% endblock %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+.btn-label {
+	position: relative;
+	left: -12px;
+	display: inline-block;
+	padding: 6px 12px;
+	background: rgba(0, 0, 0, 0.15);
+	border-radius: 3px 0 0 3px;
+}
+
+.btn-labeled {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+</style>
+{% endblock stylesheets %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+
+    <div class="d-block mb-4 mb-md-0">
+        <h2 class="h4">CCTV Control Room</h2>
+        <p class="mb-0">This channel control panel will help you to toggle between 6 channels slot. It'll use all the default setting for analytics.</p>
+    </div>
+
+    <div class="mb-2 mb-md-0">
+
+        <button type="button" class="btn btn-dark" onclick="window.stop();location.reload();">
+            <i class="fa-solid fa-rotate-right"></i>&nbsp;&nbsp;Reload
+        </button>
+
+        <button type="button" class="btn btn-dark" onclick="window.stop();">
+            <i class="fa-solid fa-stop"></i>&nbsp;&nbsp;Stop
+        </button>
+
+    </div>
+</div>
+
+    <div class="row">
+
+        {% for slot in slots %}
+        <tr><div class="col-lg-4 col-md-4 col-sm-6 col-12 d-flex flex-column align-content-center mb-2">
+            <div class="d-flex position-relative" style="height: 400px;">
+                <div class="rounded position-relative d-flex align-items-center justify-content-center h-100 w-100"
+                     style="background-color:#000;">
+
+                    {% if slot %}
+                    <img src="{{ ASSETS_ROOT }}/img/gif/spinner.gif"
+                         class="position-relative"
+                         style="height:80px; width:80px; object-fit: contain;">
+
+                    <img id="{{slot.slot_infer_id}}" src="{% url 'video_feed' %}?process={{slot.process_id}}&channel={{slot.channel_id}}"
+                         alt="Error!!"
+                         class="position-absolute"
+                         style='height: 100%; max-height: 520px; width: 100%; margin: auto; object-fit: contain;'>
+                    {% else %}
+                    <a class="w-100 h-100" align="center" data-bs-toggle="modal" onclick="openModal('slot{{ forloop.counter }}')">
+                        <img src="{{ ASSETS_ROOT }}/img/add/light.svg"
+                         class="position-relative h-100"
+                         style="height:80px; width:80px; object-fit: contain;"></a>
+                    {% endif %}
+
+                </div>
+
+                {% if slot %}
+                <div class="position-absolute d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center w-100" style="height:40px; padding:5px">
+                    <div class="rounded align-items-center h-100" style="background-color: rgba(100,100,100, 0.5);">
+                        <p id="{{slot.slot_name}}" class="w-100 h-100 text-light" style="height:30px;  padding: 2px 8px 2px 8px;">
+                            &nbsp;<i class="fa-solid fa-car-side"></i>&nbsp;&nbsp;0&nbsp;&nbsp;|&nbsp;
+                            &nbsp;<i class="fa-solid fa-motorcycle"></i>&nbsp;&nbsp;0&nbsp;&nbsp;|&nbsp;
+                            &nbsp;<i class="fa-solid fa-person-walking"></i>&nbsp;&nbsp;0&nbsp;&nbsp;|&nbsp;
+                            &nbsp;<i class="fa-solid fa-car-burst"></i>&nbsp;&nbsp;0&nbsp;&nbsp;|&nbsp;
+                            &nbsp;<i class="fa-solid fa-triangle-exclamation"></i>&nbsp;&nbsp;0
+                        </p>
+                    </div>
+
+                    <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+                        <div class="rounded h-100 me-1" style="background-color: rgba(100,100,100, 0.5);">
+                            <a onclick="openModal('{{slot.slot_name}}')" class="w-100 h-100 remove-underline text-light">
+                                <div style="height:30px; width:30px;" align="center">
+                                    <i class="fa-solid fa-marker"></i>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="rounded h-100" style="background-color: rgba(100,100,100, 0.5);">
+                            <a onclick="clearSlot('{{slot.slot_name}}')" class="w-100 h-100 remove-underline text-light">
+                                <div style="height:30px; width:30px;" align="center">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div></tr>
+        {% endfor %}
+
+    </div>
+
+
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+
+    function openModal(value){
+        var modal = $('#channelPickerModal')
+        modal.find('.modal-body input[name="slotName"]').val(value)
+        modal.modal('show')
+    }
+
+    function clearSlot(slot_name){
+        var url = $(location).attr('href');
+        var token = "{{csrf_token}}";
+
+        $.ajax({
+            url:  url,
+            type: "POST",
+            data: {
+                "csrfmiddlewaretoken": token,
+                "slot_name": slot_name
+            },
+            success: (response) => {
+                window.location.href=url;
+            },
+            error: (response) => {
+
+            }
+        });
+    }
+
+    function updater(url, slot) {
+        var timerID = undefined;
+        var interval = 1;
+
+        function request() {
+            $.get(url, function(response, status) {
+                data = response['data']
+
+                // Get data from response
+                vehicles = data['vehicles']
+                bikes = data['bikes']
+                pedestrians = data['pedestrians']
+                collisions = data['collisions']
+                near_miss = data['near_miss']
+
+                // Update documents
+                slot.html(`&nbsp;<i class="fa-solid fa-car-side"></i>&nbsp;&nbsp;${vehicles}&nbsp;&nbsp;|&nbsp;
+                            &nbsp;<i class="fa-solid fa-motorcycle"></i>&nbsp;&nbsp;${bikes}&nbsp;&nbsp;|&nbsp;
+                            &nbsp;<i class="fa-solid fa-person-walking"></i>&nbsp;&nbsp;${pedestrians}&nbsp;&nbsp;|&nbsp;
+                            &nbsp;<i class="fa-solid fa-car-burst"></i>&nbsp;&nbsp;${collisions}&nbsp;&nbsp;|&nbsp;
+                            &nbsp;<i class="fa-solid fa-triangle-exclamation"></i>&nbsp;&nbsp;${near_miss}`);
+
+            }).fail(function() {
+                clearInterval(timerID);
+            });
+        }
+
+        timerID = setInterval(request, interval * 1000);
+    };
+
+    $(document).ready(function () {
+
+        for (let i=1; i <= 6; i++) {
+            var infer = document.getElementById(`infer${i}`)
+            var slot = $(`#slot${i}`)
+            if(infer && slot) {
+                var params = new URLSearchParams(infer.src.split("/?")[1])
+                var id = params.get('process')
+                var url = `/data/?id=${id}`
+                updater(url, slot);
+            }
+        }
+
+    });
+
+</script>
+{% endblock javascripts %}

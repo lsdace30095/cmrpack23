@@ -1,0 +1,46 @@
+<nav class="navbar navbar-light bg-white navbar-top navbar-expand px-0 mt-3 rounded-2 shadow">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between w-100" id="navbarSupportedContent">
+            <div class="d-flex align-items-center">
+                <!-- Search form -->
+                <form class="navbar-search form-inline" id="navbar-search-main">
+                    <div class="input-group input-group-merge search-bar ">
+                        <span class="input-group-text rounded border border-dark border-2 me-2 bg-dark"
+                              id="topbar-addon">
+                            <i class="fa-solid fa-magnifying-glass" style="color:#fff;"></i>
+                        </span>
+                        <input type="text" class="form-control bg-light rounded border border-dark border-2"
+                               id="topbarInputIconLeft" placeholder="Search" aria-label="Search"
+                               aria-describedby="topbar-addon">
+                    </div>
+                </form>
+                <!-- / Search form -->
+            </div>
+
+
+            <div class="d-flex align-items-center justify-content-md-end">
+
+                <img class="avatar rounded border border-dark border-2 me-2" alt="Image placeholder"
+                     src="{{ ASSETS_ROOT }}/img/profile/profile-0.jpg"
+                     height="40" width="40">
+
+                <div class="dropdown">
+                    <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        Hello, {{ request.user.username }}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li><a class="dropdown-item border-bottom" href="#">Source</a></li>
+                        <li><a class="dropdown-item" href="#">Help</a></li>
+                        <li><a class="dropdown-item border-bottom" href="#">Settings</a></li>
+                        <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</nav>

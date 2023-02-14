@@ -1,0 +1,308 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Settings {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <h2 class="h4">Setting</h2>
+        <p class="mb-0">Configure your AI object detection models and more.</p>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-12 col-xl-6 col-md-12">
+        <div class="card card-body border-0 mb-4">
+            <h2 class="h5 mb-4">Collision & Near Miss</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                    <div class="mb-3 col-6" style="margin-right:10px">
+                        <label for="id_collision" class="col-form-label">Collision Text</label>
+                        <input name="collisionText" type="text" class="form-control" id="id_collision"
+                               autocomplete="off" value="{{ collision_config.collision_event_text }}"/>
+                    </div>
+
+                    <div class="mb-3 col-6"
+                         style="margin-right:5px">
+                        <label for="collisionColor" class="col-form-label">Collision Color</label>
+                        <input name="collisionColor" type="color" class="form-control form-control-color w-100"
+                               id="collisionColor"
+                               value="{{ collision_config.collision_box_color }}"
+                               title="Choose a color">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                    <div class="mb-3 col-6" style="margin-right:10px">
+                        <label for="id_near_miss" class="col-form-label">Near Miss Text</label>
+                        <input name="nearMissText" type="text" class="form-control" id="id_near_miss" autocomplete="off"
+                               value="{{ collision_config.near_miss_event_text }}"/>
+                    </div>
+
+                    <div class="mb-3 col-6"
+                         style="margin-right:5px">
+                        <label for="nearMissColor" class="col-form-label">Near Miss Color</label>
+                        <input name="nearMissColor" type="color" class="form-control form-control-color w-100"
+                               id="nearMissColor"
+                               value="{{ collision_config.near_miss_box_color }}"
+                               title="Choose a color">
+                    </div>
+                </div>
+
+                <label for="id_collision_message" class="col-form-label">Collision Definition</label>
+                <select class="form-select mb-3" name="collisionDefinition" id="id_collision_message">
+                    <option value="0" {% if collision_config.collision_definition == '0' %}selected="selected"{% endif %}
+                    >If two or more objects bodies touches</option>
+                    <option value="1" {% if collision_config.collision_definition == '1' %} selected="selected"{% endif %}
+                    >If two or more objects intersect 25% each other</option>
+                    <option value="2" {% if collision_config.collision_definition == '2' %}selected="selected"{% endif %}
+                    >If two or more objects intersect 50% each other</option>
+                    <option value="3" {% if collision_config.collision_definition == '3' %}selected="selected"{% endif %}
+                    >If two or more objects intersect 75% each other</option>
+                </select>
+
+                <label for="id_near_miss_message" class="col-form-label">Near Miss Definition</label>
+                <select class="form-select mb-3" name="nearMissDefinition" id="id_near_miss_message">
+                    <option value="0" {% if collision_config.near_miss_definition == '0' %}selected="selected"{% endif %}
+                    >If two or more objects intersection is less than 25%</option>
+                    <option value="1" {% if collision_config.near_miss_definition == '1' %}selected="selected"{% endif %}
+                    >If two or more objects intersection is less than 50%</option>
+                </select>
+
+                <div class="mt-3">
+                    <button class="btn btn-gray-800 mt-2 animate-up-2" name="collisionConfigForm" type="submit">Save
+                        all
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-6 col-md-12">
+        <div class="card card-body border-0 mb-4">
+            <h2 class="h5 mb-4">Model Configuration</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <label for="id_model" class="col-form-label">Detection Model</label>
+                <select class="form-select mb-3" name="model" id="id_model">
+                    {% for model in models %}
+                    <option value="{{ model.id }}"
+                            {% if model_config.title == model.title %}selected="selected" {% endif %}
+                    >{{ model.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- Vehicle -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                    <div class="mb-3 col-6" style="padding-right:5px">
+                        <label for="id_vehicle" class="col-form-label">Vehicle
+                            threshold</label>
+                        <input name="vehicleTh" type="number" class="form-control" id="id_vehicle" autocomplete="off"
+                               value="{{ model_config.vehicle_threshold }}" min="0.00"
+                               max="1.00" step=".01"/>
+                    </div>
+
+                    <div class="mb-3 col-6"
+                         style="padding-left:5px">
+                        <label for="vehicleColor" class="col-form-label">Vehicle Object Color</label>
+                        <input name="vehicleColor" type="color" class="form-control form-control-color w-100"
+                               id="vehicleColor"
+                               value="{{ model_config.vehicle_object_color }}"
+                               title="Choose a color">
+                    </div>
+                </div>
+
+                <!-- Bike -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                    <div class="mb-3 col-6"
+                         style="padding-right:5px">
+                        <label for="id_bike" class="col-form-label">Bike
+                            threshold</label>
+
+                        <input name="bikeTh" type="number" class="form-control" id="id_bike" autocomplete="off"
+                               value="{{ model_config.bike_threshold }}" min="0.00"
+                               max="1.00" step=".01"/>
+                    </div>
+
+                    <div class="mb-3 col-6"
+                         style="padding-left:5px">
+                        <label for="bikeColor" class="col-form-label">Bike Object Color</label>
+                        <input name="bikeColor" type="color" class="form-control form-control-color w-100"
+                               id="bikeColor"
+                               value="{{ model_config.bike_object_color }}"
+                               title="Choose a color">
+                    </div>
+                </div>
+
+                <!-- Person -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                    <div class="mb-3 col-6"
+                         style="padding-right:5px">
+                        <label for="id_person" class="col-form-label">Person
+                            threshold</label>
+
+                        <input name="personTh" type="number" class="form-control" id="id_person" autocomplete="off"
+                               value="{{ model_config.person_threshold }}" min="0.00"
+                               max="1.00" step=".01"/>
+                    </div>
+
+                    <div class="mb-3 col-6"
+                         style="padding-left:5px">
+                        <label for="personColor" class="col-form-label">Person Object Color</label>
+                        <input name="personColor" type="color" class="form-control form-control-color w-100"
+                               id="personColor"
+                               value="{{ model_config.person_object_color }}"
+                               title="Choose a color">
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button class="btn btn-gray-800 mt-2 animate-up-2" name="modelConfigForm" type="submit">Save all
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card card-body border-0 mb-4">
+            <h2 class="h5 mb-4">Graph & Cart</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-sm-4 mb-3">
+                        <label for="id_update" class="col-form-label">Update Every</label>
+                        <select class="form-select mb-3" name="update_every" id="id_update">
+                            <option value="1" {% if graph_config.update_every == '1' %}selected="selected"{% endif %}>1 seconds</option>
+                            <option value="5" {% if graph_config.update_every == '5' %}selected="selected"{% endif %}>5 seconds</option>
+                            <option value="10" {% if graph_config.update_every == '10' %}selected="selected"{% endif %}>10 seconds</option>
+                            <option value="15" {% if graph_config.update_every == '15' %}selected="selected"{% endif %}>15 seconds</option>
+                            <option value="30" {% if graph_config.update_every == '30' %}selected="selected"{% endif %}>30 seconds</option>
+                            <option value="60" {% if graph_config.update_every == '60' %}selected="selected"{% endif %}>60 seconds</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <h2 class="h5 my-4">Traffic Flow</h2>
+                        <div class="row">
+                            <div class="col-sm-4 mb-3">
+                                <div class="form-group">
+                                    <label for="vehicle_flow">Vehicle Label & Color</label>
+                                    <input name="vehicle_flow_label" class="form-control mb-3" id="vehicle_flow" type="text"
+                                           value="{{ graph_config.vehicle_flow_label }}" required>
+                                    <input name="vehicle_flow_color" type="color" class="form-control form-control-color w-100"
+                                           value="{{ graph_config.vehicle_flow_color }}" id="vehicle_flow_colors"
+                                           title="Choose a color">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 mb-3">
+                                <div class="form-group">
+                                    <label for="bike_flow">Bike Label & Color</label>
+                                    <input name="bike_flow_label" class="form-control mb-3" id="bike_flow" type="text"
+                                           value="{{ graph_config.bike_flow_label }}" required>
+                                    <input name="bike_flow_color" type="color" class="form-control form-control-color w-100"
+                                           value="{{ graph_config.bike_flow_color }}" id="bike_flow_colors">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 mb-3">
+                                <div class="form-group">
+                                    <label for="person_flow">Person Label & Color</label>
+                                    <input name="person_flow_label" class="form-control mb-3" id="person_flow" type="text"
+                                           value="{{ graph_config.person_flow_label }}" required>
+                                    <input name="person_flow_color" type="color" class="form-control form-control-color w-100"
+                                           value="{{ graph_config.person_flow_color }}" id="person_flow_colors">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 mb-3">
+                        <h2 class="h5 my-4">Traffic Analysis</h2>
+                        <div class="row">
+                    <div class="col-sm-4 mb-3">
+                        <div class="form-group">
+                            <label for="vehicle_analysis">Vehicle Label & Color</label>
+                            <input name="vehicle_analysis_label" class="form-control mb-3" id="vehicle_analysis"
+                                   type="text" value="{{ graph_config.vehicle_analysis_label }}" required>
+                            <input name="vehicle_analysis_color" type="color"
+                                   class="form-control form-control-color w-100"
+                                   value="{{ graph_config.vehicle_analysis_color }}" id="vehicle_analysis_colors"
+                                   title="Choose a color">
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mb-3">
+                        <div class="form-group">
+                            <label for="bike_analysis">Bike Label & Color</label>
+                            <input name="bike_analysis_label" class="form-control mb-3" id="bike_analysis" type="text"
+                                   value="{{ graph_config.bike_analysis_label }}" required>
+                            <input name="bike_analysis_color" type="color"
+                                   class="form-control form-control-color w-100"
+                                   value="{{ graph_config.bike_analysis_color }}" id="bike_analysis_colors">
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mb-3">
+                        <div class="form-group">
+                            <label for="person_analysis">Person Label & Color</label>
+                            <input name="person_analysis_label" class="form-control mb-3" id="person_analysis"
+                                   type="text" value="{{ graph_config.person_analysis_label }}" required>
+                            <input name="person_analysis_color" type="color"
+                                   class="form-control form-control-color w-100"
+                                   value="{{ graph_config.person_analysis_color }}" id="person_analysis_colors">
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 mb-3">
+                        <h2 class="h5 my-4">Collision</h2>
+                        <div class="form-group">
+                            <label for="collision">Label & Color</label>
+                            <input name="collision_label" class="form-control mb-3" id="collision" type="text"
+                                   value="{{ graph_config.collision_label }}" required>
+                            <input name="collision_color" type="color" class="form-control form-control-color w-100"
+                                   value="{{ graph_config.collision_color }}" id="collision_colors"
+                                   title="Choose a color">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4 mb-3">
+                        <h2 class="h5 my-4">Near Miss</h2>
+                        <div class="form-group">
+                            <label for="nearmiss">Label & Color</label>
+                            <input name="nearmiss_label" class="form-control mb-3" id="nearmiss" type="text"
+                                   value="{{ graph_config.nearmiss_label }}" required>
+                            <input name="nearmiss_color" type="color" class="form-control form-control-color w-100"
+                                   value="{{ graph_config.nearmiss_color }}" id="nearmiss_colors"
+                                   title="Choose a color">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button class="btn btn-gray-800 mt-2 animate-up-2" name="graphConfigForm" type="submit">Save all
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

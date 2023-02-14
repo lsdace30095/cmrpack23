@@ -1,0 +1,11 @@
+# This file can be used with the --list option of the model downloader.
+person-vehicle-bike-detection-2000
+person-vehicle-bike-detection-2001
+person-vehicle-bike-detection-2002
+person-vehicle-bike-detection-2003
+person-vehicle-bike-detection-2004
+person-vehicle-bike-detection-crossroad-0078
+person-vehicle-bike-detection-crossroad-1016
+# Example command to download models
+# pip install openvino-dev
+# omz_downloader --list models.lst

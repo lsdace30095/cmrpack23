@@ -1,0 +1,26 @@
+<div class="modal fade" id="exportChannelModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Export channel</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="POST" class="pop-up-form__form" id="export_channel_form" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3" id="input-thumbnail">
+                        <label for="export" class="form-label">Your items and all their data will be downloaded as a CSV file.</label>
+                        <input type="hidden" id="export" name="export" value="true">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="export_channel_form" data-bs-dismiss="modal">Export</button>
+            </div>
+        </div>
+    </div>
+</div>
