@@ -1,0 +1,108 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Transactions {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        {% if channel %}
+        <h2 class="h4">Screenshots</h2>
+        <p class="mb-0">All the screenshots that are captured from the input channel: {{ channel.camera_name }}</p>
+        {% else %}
+        <h2 class="h4">Directories</h2>
+        <p class="mb-0">All the directories that are created to store captured screenshots from the input channels</p>
+        {% endif %}
+    </div>
+
+    {% if channel %}
+    <div class="mb-2 mb-md-0">
+        <button id="noisyObjectRemoverButton" type="button" class="btn btn-dark">&nbsp;<i
+                class="fa-solid fa-robot"></i>&nbsp;&nbsp;Remove Noisy Object
+        </button>
+    </div>
+    {% endif %}
+
+</div>
+
+{% if directories %}
+<div class="card card-body border-0 table-wrapper table-responsive">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th class="border-gray-200" >Name</th>
+            <th class="border-gray-200" >Date modified</th>
+            <th class="border-gray-200" >Type</th>
+            <th class="border-gray-200" >Size</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for directory in directories %}
+        <tr onclick="window.location='/outputs/?id={{ directory.id }}';">
+            <td>
+                <img src="https://img.icons8.com/fluency/48/null/pictures-folder--v2.png" alt="logo"/>
+                <span class="fw-normal"><strong>{{ directory.name }}</strong></span>
+            </td>
+            <td><span class="fw-normal">{{ directory.date_modified  }}</span></td>
+            <td><span class="fw-normal">Folder</span></td>
+            <td><span class="fw-normal">{{ directory.size  }}</span></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+
+{% if screenshots %}
+<div class="row">
+    {% for screenshot in screenshots %}
+    <div class="col-lg-2 col-md-3 col-sm-6 col-12 d-flex flex-column align-content-center mb-2">
+        <img class="rounded border border-2 w-100 h-75"
+             src="../media/screenshots/{{ dir_name }}/{{ screenshot.name }}"
+             alt="{{ screenshot.name }}"
+             style="object-fit: cover;">
+        <p>{{ screenshot.name }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script>
+
+    $(document).ready(function () {
+
+        var url = $(location).attr('href');
+        var token = "{{csrf_token}}";
+
+        $("#noisyObjectRemoverButton").click(function() {
+
+            waitingDialog.show('Removing Noisy Objects...');
+            $.ajax({
+                url:  url,
+                type: "POST",
+                data: {"csrfmiddlewaretoken": token},
+                success: (response) => {
+                    waitingDialog.hide();
+                    window.location.href=url;
+                },
+                error: (response) => {
+                    waitingDialog.hide();
+                }
+            });
+
+        });
+
+    });
+
+</script>
+
+{% endblock javascripts %}

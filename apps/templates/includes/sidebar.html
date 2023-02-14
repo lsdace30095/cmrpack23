@@ -1,0 +1,69 @@
+<nav class="navbar navbar-dark bg-dark px-4 col-12 d-lg-none">
+    <a class="navbar-brand me-lg-5" href="/">
+        <img src="{{ ASSETS_ROOT }}/img/brand/light.svg" alt="logo" width="30" height="24"/>
+    </a>
+    <div class="d-flex align-items-center">
+        <button class="navbar-toggler d-lg-none collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
+
+<nav id="sidebarMenu" class="sidebar bg-dark d-lg-block bg-gray-800 text-white collapse" data-simplebar>
+    <div class="sidebar-inner px-4 pt-3">
+        <ul class="nav flex-column pt-3 pt-md-0">
+
+            <li class="nav-brand active">
+                <a class="nav-link d-flex align-items-center" href="/">
+                    <img src="{{ ASSETS_ROOT }}/img/brand/dark.svg" alt="logo" width="30" height="24"/>
+                    <span class="d-inline-block">Advanced Smart City</span>
+                </a>
+            </li>
+
+            <li class="nav-item {% if 'dashboard' in segment %} active {% endif %}">
+                <a href="/dashboard" class="nav-link">
+                    <img src="{{ ASSETS_ROOT }}/img/dashboard/light.svg" alt="logo" width="30" height="24"/>
+                    <span class="d-inline-block">Dashboard</span>
+                </a>
+            </li>
+
+            <li class="nav-item {% if 'channels' in segment %} active {% endif %}">
+                <a href="/channels" class="nav-link">
+                    <img src="{{ ASSETS_ROOT }}/img/channels/light.svg" alt="logo" width="30" height="24"/>
+                    <span class="d-inline-block">Channels</span>
+                </a>
+            </li>
+
+            <li class="nav-item {% if 'channel-group' in segment %} active {% endif %}">
+                <a href="/channel-group" class="nav-link">
+                    <img src="{{ ASSETS_ROOT }}/img/channels/group/light.svg" alt="logo" width="30" height="24"/>
+                    <span class="d-inline-block">Channel Group</span>
+                </a>
+            </li>
+
+            <li class="nav-item {% if 'outputs' in segment %} active {% endif %}">
+                <a href="/outputs" class="nav-link">
+                    <img src="{{ ASSETS_ROOT }}/img/output/light.svg" alt="logo" width="30" height="24"/>
+                    <span class="d-inline-block">Output</span>
+                </a>
+            </li>
+
+            <li class="nav-item {% if 'settings' in segment %} active {% endif %}">
+                <a href="/settings" class="nav-link">
+                    <img src="{{ ASSETS_ROOT }}/img/settings/light.svg" alt="logo" width="30" height="24"/>
+                    <span class="d-inline-block">Settings</span>
+                </a>
+            </li>
+            <li class="vertical-divider mt-4 mb-3"></li>
+            <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <img src="{{ ASSETS_ROOT }}/img/logout/light.svg" alt="logo" width="30" height="24"/>
+                    <span class="d-inline-block">Logout</span>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+</nav>

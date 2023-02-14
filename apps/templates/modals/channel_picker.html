@@ -1,0 +1,101 @@
+<div class="modal fade" id="channelPickerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Select Channel</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <table class="table table-striped display" style="width:100%" id="channelTable">
+                    <thead>
+                    <tr>
+                        <th class="border-gray-200" >Thumbnail</th>
+                        <th class="border-gray-200" >Channel Id</th>
+                        <th class="border-gray-200">Title</th>
+                        <th class="border-gray-200">Channel type</th>
+                        <th class="border-gray-200" style="text-align: right">Action</th>
+                    </tr>
+                    </thead>
+                </table>
+
+                <input type="hidden" id="slotName" name="slotName" value="">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+    $(document).ready(function () {
+
+        $('#channelTable').dataTable({
+            responsive: true,
+            serverSide: true,
+            sAjaxSource: "/channels-list/",
+            columns: [
+                {
+                    name: "jpeg_url",
+                    data: 5,
+                    render: function (data) {
+                        if( data != null) {
+                            return `<img class="bg-light rounded" style="width:80px; height:60px; object-fit: cover;"
+                                     src="${data}"/>`;
+                        }else {
+                            return `<img class="bg-light bg-gradient rounded" style="width:80px; height:60px; object-fit: contain;"
+                                     src="https://img.icons8.com/fluency/240/null/link.png"/>`;
+                        }
+                    }
+                },
+                {name: "id", data: 0},
+                {name: "camera_name", data: 2},
+                {name: "source", data: 1},
+                {
+                    name: "source",
+                    data: 1,
+                    className: 'dt-right',
+                    render: function (data, type, row ) {
+                        return `<span class="text-right">
+                                <button id="${row[0]}" class="btn btn-primary remove-underline mx-2 my-2 action-button">
+                                    Select
+                                </button>
+                            </span>`;
+                    },
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).find('button').on('click', function () {
+
+                            var url = $(location).attr('href');
+                            var token = "{{csrf_token}}";
+                            var slotName = $("#slotName").val();
+
+                            $.ajax({
+                                url:  url,
+                                type: "POST",
+                                data: {
+                                    "csrfmiddlewaretoken": token,
+                                    "channel_id": rowData[0],
+                                    "slot_name": slotName
+                                },
+                                success: (response) => {
+                                    window.location.href=url;
+                                },
+                                error: (response) => {
+
+                                }
+                            });
+
+                        });
+                    }
+                }
+            ],
+        });
+
+    });
+
+</script>
+
+
+</div>

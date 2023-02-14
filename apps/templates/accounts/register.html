@@ -1,0 +1,92 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Sign UP {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<main>
+    <section class="vh-lg-100 mt-lg-0 bg-soft d-flex align-items-center">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center vh-100">
+                <div class="container">
+
+                    <div class="row justify-content-center">
+
+
+                        <div class="col-xl-5 col-md-8 rounded-1 shadow">
+
+                            {% if success %}
+
+                            <div class="d-grid">
+                                <a href="{% url 'login' %}" class="btn btn-gray-800">Sign IN</a>
+                            </div>
+
+                            {% else %}
+
+                            <h2 class="text-center fw-bold mb-2 mt-5 text-uppercase">Sign IN</h2>
+                            <p class="text-center text-black-50 mb-5">Please enter your login and password!</p>
+
+
+                            <form method="post" action="" class="bg-black-10 rounded-5">
+                                {% csrf_token %}
+
+                                <!-- Username input -->
+                                <div class="form-floating mb-4">
+                                    <input type="text" name="username" class="form-control" required=""
+                                           id="id_username">
+                                    <label class="form-label" for="id_username">Username</label>
+                                    <span class="text-danger">{{ form.username.errors }}</span>
+                                </div>
+
+                                <!-- Email input -->
+                                <div class="form-floating mb-4">
+                                    <input type="email" name="email" class="form-control" required="" id="id_email">
+                                    <label class="form-label" for="id_email">Email</label>
+                                    <span class="text-danger">{{ form.email.errors }}</span>
+                                </div>
+
+                                <!-- Password input -->
+                                <div class="form-floating mb-4">
+                                    <input type="password" name="password1" class="form-control" required=""
+                                           id="id_password1">
+                                    <label class="form-label" for="id_password1">Password</label>
+                                    <span class="text-danger">{{ form.password1.errors }}</span>
+                                </div>
+
+                                <!-- Password input -->
+                                <div class="form-floating mb-4">
+                                    <input type="password" name="password2" class="form-control" required=""
+                                           id="id_password2">
+                                    <label class="form-label" for="id_password2">Password check</label>
+                                    <span class="text-danger">{{ form.password2.errors }}</span>
+                                </div>
+
+
+                                <!-- Submit button -->
+                                <button type="submit" name="register" class="btn btn-primary btn-block w-100 mb-4 mt-4">Sign
+                                    UP
+                                </button>
+                                <!-- Register buttons -->
+                                <div class="text-center mb-5">
+                                    <p>Already have an account? <a href="{% url 'login' %}">Sign IN</a></p>
+                                </div>
+                            </form>
+
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

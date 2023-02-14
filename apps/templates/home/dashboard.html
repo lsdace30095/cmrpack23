@@ -1,0 +1,512 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+<style>
+.btn-label {
+	position: relative;
+	left: -12px;
+	display: inline-block;
+	padding: 6px 12px;
+	background: rgba(0, 0, 0, 0.15);
+	border-radius: 3px 0 0 3px;
+}
+
+.btn-labeled {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+</style>
+
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <!--    <button type="button" class="btn btn-dark"  data-bs-toggle="modal" data-bs-target="#exampleModal">&nbsp;<i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Add Channel</button>-->
+
+    <div class="d-block mb-4 mb-md-0">
+
+        <!--  Models related configuration  -->
+        <button type="button" class="btn btn-labeled btn-warning mb-2">
+            <span class="btn-label">Model</span>{{ model_config.model.title }}
+        </button>
+
+        <button type="button" class="btn btn-labeled mb-2" style="background-color:{{ model_config.vehicle_object_color }}; color:white">
+            <span class="btn-label">Vehicles</span>{{ model_config.vehicle_threshold }}
+        </button>
+
+        <button type="button" class="btn btn-labeled mb-2" style="background-color:{{ model_config.bike_object_color }}; color:white">
+            <span class="btn-label">Bike</span>{{ model_config.bike_threshold }}
+        </button>
+
+        <button type="button" class="btn btn-labeled mb-2" style="background-color:{{ model_config.person_object_color }}; color:white">
+            <span class="btn-label">Person</span>{{ model_config.person_threshold }}
+        </button>
+
+        <!--  Collision related configuration  -->
+        <button type="button" class="btn btn-labeled mb-2" style="background-color:{{ collision_config.collision_box_color }}; color:white">
+            <span class="btn-label">Collision</span>
+            {% if collision_config.collision_definition == '0' %} 0~1% {% endif %}
+            {% if collision_config.collision_definition == '1' %} 25% {% endif %}
+            {% if collision_config.collision_definition == '2' %} 50% {% endif %}
+            {% if collision_config.collision_definition == '3' %} 75% {% endif %}
+
+        </button>
+
+        <button type="button" class="btn btn-labeled mb-2" style="background-color:{{ collision_config.near_miss_box_color }}; color:white">
+            <span class="btn-label">Near Miss</span>
+            {% if collision_config.near_miss_definition == '0' %} ≤ 25% {% endif %}
+            {% if collision_config.near_miss_definition == '1' %} ≤ 50% {% endif %}
+        </button>
+
+
+    </div>
+
+    <div class="mb-4 mb-md-0">
+        <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#channelConfigModal">&nbsp;<i
+                class="fa-solid fa-gear"></i>&nbsp;&nbsp;Configure
+        </button>
+    </div>
+
+
+</div>
+
+<div class="row">
+    <div class="col-12 col-xl-6 col-md-12 inferred-parent">
+        <div class="row">
+            <div class="col-6 col-xxl-3 col-md-3 col-sm-6 mb-4 stats-card">
+                <div class="card">
+                    <h6 class="card-header text-truncate">Collision</h6>
+                    <div class="card-body">
+                        <h1 id="collision-count" class="card-title text-center">0</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xxl-3 col-md-3 col-sm-6 mb-4 stats-card">
+                <div class="card">
+                    <h6 class="card-header text-truncate">Pedestrian</h6>
+                    <div class="card-body">
+                        <h1 id="pedestrian-count" class="card-title text-center">0</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xxl-3 col-md-3 col-sm-6 mb-4 stats-card">
+                <div class="card">
+                    <h6 class="card-header text-truncate">Vehicle</h6>
+                    <div class="card-body">
+                        <h1 id="vehicle-count" class="card-title text-center">0</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-xxl-3 col-md-3 col-sm-6 mb-4 stats-card">
+                <div class="card">
+                    <h6 class="card-header text-truncate">Bike</h6>
+                    <div class="card-body">
+                        <h1 id="bike-count" class="card-title text-center">0</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+
+                <div class="card bg-dark inferred-child" style="height: 600px;">
+
+                    <div class="card-header d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center"
+                         style="background-color:#f7f7f7;">
+                        <h5 lass="align-middle">Inferred Stream</h5>
+                        <div>
+                            <button id="view-toggle" type="button" class="btn btn-default"><i class="fa-solid fa-expand"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="card-body d-flex position-relative">
+                        <div class="rounded position-relative d-flex align-items-center justify-content-center h-100 w-100"
+                             style="background-color:#000;">
+                            {% if process and channel %}
+
+                            <img src="{{ ASSETS_ROOT }}/img/gif/spinner.gif"
+                                 class="position-relative"
+                                 style="height:80px; width:80px; object-fit: contain;">
+
+                            <img id="inferred-stream"
+                                 src="{% url 'video_feed' %}?process={{process}}&channel={{channel}}"
+                                 alt="Error!!"
+                                 class="position-absolute"
+                                 style='height: 100%; max-height: 520px; width: 100%; margin: auto; object-fit: contain;'>
+                            {% else %}
+                            <img src="{{ ASSETS_ROOT }}/img/gif/stream-screen-placeholder-payment.gif"
+                                 alt="Error!!"
+                                 style='height: 100%; max-height: 400px; width: 100%; max-width: 400px; margin: auto; object-fit: cover;'>
+                            {% endif %}
+                        </div>
+
+
+                        {% if process and channel %}
+                        <div class="position-absolute d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center w-100" style="padding: 5px">
+                            <div class="rounded align-items-center h-100" style="background-color: rgba(100,100,100, 0.7); ">
+                                <p id="inferred-state" class="w-100 h-100 text-light d-none" style="padding: 15px 8px 0px 8px;">
+                                    &nbsp;<i class="fa-solid fa-car-side" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;0</br>
+                                    &nbsp;<i class="fa-solid fa-motorcycle" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;0</br>
+                                    &nbsp;<i class="fa-solid fa-person-walking" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;0</br>
+                                    &nbsp;<i class="fa-solid fa-car-burst" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;0</br>
+                                    &nbsp;<i class="fa-solid fa-triangle-exclamation" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;0
+                                </p>
+                            </div>
+
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-6 graph-charts">
+        <div class="row">
+            <div class="col-12 col-xxl-6 col-md-6 mb-4">
+                <div class="card" style="height: 363px">
+                    <h5 class="card-header text-truncate">Traffic Flow</h5>
+                    <div class="card-body">
+                        <div style="height:100%;">
+                            <canvas id="traffic-flow"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xxl-6 col-md-6 mb-4">
+                <div class="card" style="height: 363px">
+                    <h5 class="card-header text-truncate">Traffic Analysis</h5>
+                    <div class="card-body">
+                        <div style="height:100%;">
+                            <canvas id="traffic-analysis"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xxl-6 col-md-6 mb-4">
+                <div class="card" style="height: 363px">
+                    <h5 class="card-header text-truncate">Collision and Near Miss</h5>
+                    <div class="card-body">
+                        <div style="height:100%;">
+                            <canvas id="collision-and-near-miss"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xxl-6 col-md-6 mb-4">
+                <div class="card" style="height: 363px">
+                    <h5 class="card-header text-truncate">Collision and Near Miss Analysis</h5>
+                    <div class="card-body">
+                        <div style="height:100%;">
+                            <canvas id="collision-and-near-miss-analysis"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script type="text/javascript">
+
+    function analyzer() {
+        var timerID = undefined;
+        var interval = "{{ graph_config.update_every }}";
+        var counter = 0;
+        const setOpacity = (hex, alpha) => `${hex}${Math.floor(alpha * 255).toString(16).padStart(2, 0)}`;
+
+        // Bar chart label
+        var traffic_analysis_bar_labels = ["{{ graph_config.vehicle_analysis_label }}", "{{ graph_config.bike_analysis_label }}", "{{ graph_config.person_analysis_label }}"]
+        var collision_bar_labels = ["{{ graph_config.collision_label }}", "{{ graph_config.nearmiss_label }}"]
+
+        // Line chart label
+        var traffic_flow_labels = ["{{ graph_config.vehicle_flow_label }}", "{{ graph_config.bike_flow_label }}", "{{ graph_config.person_flow_label }}"]
+
+        // Colors properties
+        var vehicle_flow_color = "{{ graph_config.vehicle_flow_color }}"
+        var bike_flow_color = "{{ graph_config.bike_flow_color }}"
+        var person_flow_color = "{{ graph_config.person_flow_color }}"
+
+        var vehicle_analysis_color = "{{ graph_config.vehicle_analysis_color }}"
+        var bike_analysis_color = "{{ graph_config.bike_analysis_color }}"
+        var person_analysis_color = "{{ graph_config.person_analysis_color }}"
+
+        var collision_color = "{{ graph_config.collision_color }}"
+        var nearmiss_color = "{{ graph_config.nearmiss_color }}"
+
+
+        // chart options
+        bar_chart_option = {
+            maintainAspectRatio: false,
+            plugins: {
+              legend: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+
+        line_chart_option = {
+            maintainAspectRatio: false,
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            }
+        }
+
+        line_chart_labels = [0, 5, 10, 15, 20, 25, 30];
+
+        traffic_flow_pedestrians = [0, 0, 0, 0, 0, 0, 0];
+        traffic_flow_vehicles = [0, 0, 0, 0, 0, 0, 0];
+        traffic_flow_bike = [0, 0, 0, 0, 0, 0, 0];
+
+        traffic_flow_collisions = [0, 0, 0, 0, 0, 0, 0];
+        traffic_flow_near_miss = [0, 0, 0, 0, 0, 0, 0];
+
+        const traffic_flow = document.getElementById('traffic-flow');
+        const collision_and_near_miss = document.getElementById('collision-and-near-miss');
+        const traffic_analysis = document.getElementById('traffic-analysis');
+        const collision_and_near_miss_analysis = document.getElementById('collision-and-near-miss-analysis');
+
+        const traffic_analysis_bar_chart = new Chart(traffic_analysis, {
+            type: 'bar',
+            data: {
+                labels: traffic_analysis_bar_labels,
+                datasets: [{
+                    label: 'Traffic Analysis',
+                    data: [0, 0, 0],
+                    backgroundColor: [setOpacity(vehicle_analysis_color, 0.2), setOpacity(bike_analysis_color, 0.2), setOpacity(person_analysis_color, 0.2)],
+                    borderColor: [vehicle_analysis_color, bike_analysis_color, person_analysis_color],
+                    borderWidth: 1
+                }]
+            },
+            options: bar_chart_option
+        });
+
+        const collision_and_near_miss_bar_chart = new Chart(collision_and_near_miss, {
+            type: 'bar',
+            data: {
+                labels: collision_bar_labels,
+                datasets: [{
+                    label: 'Collision and Near Miss',
+                    data: [0, 0],
+                    backgroundColor: [setOpacity(collision_color, 0.2), setOpacity(nearmiss_color, 0.2)],
+                    borderColor: [collision_color, nearmiss_color],
+                    borderWidth: 1
+                }]
+            },
+            options: bar_chart_option
+        });
+
+        const traffic_flow_line_chart = new Chart(traffic_flow, {
+            type: 'line',
+            data: {
+              labels: line_chart_labels,
+              datasets: [
+                {
+                  label: traffic_flow_labels[0],
+                  data: traffic_flow_vehicles,
+                  borderColor: setOpacity(vehicle_analysis_color, 0.8),
+                  backgroundColor: setOpacity(vehicle_analysis_color, 0.1),
+                  tension: 0.2,
+                  fill: {
+                    target: 'origin',
+                    above: setOpacity(vehicle_analysis_color, 0.1),
+                  }
+                },
+                {
+                  label: traffic_flow_labels[1],
+                  data: traffic_flow_bike,
+                  borderColor: setOpacity(bike_analysis_color, 0.8),
+                  backgroundColor: setOpacity(bike_analysis_color, 0.1),
+                  tension: 0.2,
+                  fill: {
+                    target: 'origin',
+                    above: setOpacity(bike_analysis_color, 0.1),
+                  }
+                },
+                {
+                  label: traffic_flow_labels[2],
+                  data: traffic_flow_pedestrians,
+                  borderColor: setOpacity(person_analysis_color, 0.8),
+                  backgroundColor: setOpacity(person_analysis_color, 0.1),
+                  tension: 0.2,
+                  fill: {
+                    target: 'origin',
+                    above: setOpacity(person_analysis_color, 0.1),
+                  }
+                }
+              ]
+            },
+            options: line_chart_option
+        });
+
+        collision_and_near_miss_analysis_line_chart = new Chart(collision_and_near_miss_analysis, {
+            type: 'line',
+            data: {
+              labels: line_chart_labels,
+              datasets: [
+                {
+                  label: collision_bar_labels[0],
+                  data: traffic_flow_collisions,
+                  borderColor: setOpacity(collision_color, 0.8),
+                  backgroundColor: setOpacity(collision_color, 0.1),
+                  tension: 0.2,
+                  fill: {
+                    target: 'origin',
+                    above: setOpacity(collision_color, 0.1),
+                  }
+                },
+                {
+                  label: collision_bar_labels[1],
+                  data: traffic_flow_near_miss,
+                  borderColor: setOpacity(nearmiss_color, 0.8),
+                  backgroundColor: setOpacity(nearmiss_color, 0.1),
+                  tension: 0.2,
+                  fill: {
+                    target: 'origin',
+                    above: setOpacity(nearmiss_color, 0.1),
+                  }
+                }
+              ]
+            },
+            options: line_chart_option
+        });
+
+
+        function updater() {
+
+            // Get image src url & split it query params part
+            var src = document.getElementById("inferred-stream").src
+            var params = new URLSearchParams(src.split("/?")[1])
+            // Get process id & file from params
+            var id = params.get('process')
+            var name = params.get('file')
+            var url = `/data/?id=${id}`
+
+            $.get(url, function(response, status) {
+                data = response['data']
+
+                // Get data from response
+                near_miss = data['near_miss']
+                collisions = data['collisions']
+                pedestrians = data['pedestrians']
+                vehicles = data['vehicles']
+                bikes = data['bikes']
+
+                // Update documents
+                $('#collision-count').html(collisions);
+                $('#pedestrian-count').html(pedestrians);
+                $('#vehicle-count').html(vehicles);
+                $('#bike-count').html(bikes);
+
+
+                $('#inferred-state').html(`&nbsp;<i class="fa-solid fa-car-side" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;${vehicles}</br>
+                    &nbsp;<i class="fa-solid fa-motorcycle" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;${bikes}</br>
+                    &nbsp;<i class="fa-solid fa-person-walking" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;${pedestrians}</br>
+                    &nbsp;<i class="fa-solid fa-car-burst" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;${collisions}</br>
+                    &nbsp;<i class="fa-solid fa-triangle-exclamation" style="min-width:24px"></i>&nbsp;&nbsp;|&nbsp;&nbsp;${near_miss}`);
+
+
+                if(counter > line_chart_labels.length - 1){
+                    label = line_chart_labels.slice(-1).pop() + parseInt(interval);
+                    line_chart_labels.push(label);
+                    traffic_flow_pedestrians.push(pedestrians);
+                    traffic_flow_vehicles.push(vehicles);
+                    traffic_flow_bike.push(bikes);
+                    traffic_flow_collisions.push(collisions);
+                    traffic_flow_near_miss.push(near_miss);
+                } else {
+                    traffic_flow_pedestrians[counter] = pedestrians
+                    traffic_flow_vehicles[counter] = vehicles
+                    traffic_flow_bike[counter] = bikes
+                    traffic_flow_collisions[counter] = collisions
+                    traffic_flow_near_miss[counter] = near_miss
+                }
+
+                traffic_flow_line_chart.data.labels = line_chart_labels
+                traffic_flow_line_chart.data.datasets[0].data = traffic_flow_pedestrians
+                traffic_flow_line_chart.data.datasets[1].data = traffic_flow_vehicles
+                traffic_flow_line_chart.data.datasets[2].data = traffic_flow_bike
+
+                collision_and_near_miss_analysis_line_chart.data.labels = line_chart_labels
+                collision_and_near_miss_analysis_line_chart.data.datasets[0].data = traffic_flow_collisions
+                collision_and_near_miss_analysis_line_chart.data.datasets[1].data = traffic_flow_near_miss
+
+                traffic_analysis_bar_chart.data.datasets[0].data = [pedestrians, vehicles, bikes]
+                collision_and_near_miss_bar_chart.data.datasets[0].data = [collisions, near_miss]
+
+                traffic_analysis_bar_chart.update();
+                collision_and_near_miss_bar_chart.update();
+                traffic_flow_line_chart.update();
+                collision_and_near_miss_analysis_line_chart.update();
+
+                counter += 1;
+            }).fail(function() {
+                clearInterval(timerID);
+            });
+        };
+
+        updater();
+
+        timerID = setInterval(updater, parseInt(interval) * 1000);
+    }
+
+
+    $(document).ready(function () {
+
+
+
+        var expanded = false;
+
+        $('#view-toggle').click(function(){
+
+            if(expanded === true) {
+                $('#view-toggle').html('<i class="fa-solid fa-compress"></i>');
+                $('.inferred-parent').removeClass('col-xl-12').addClass('col-xl-6');
+                $('.graph-charts').removeClass('d-none');
+                $('.stats-card').removeClass('d-none');
+
+                $('.inferred-child').attr('style','height: 600px;');
+                $('#inferred-stream').attr('style','height: 100%; max-height: 520px; width: 100%; margin: auto; object-fit: contain;');
+                $('#inferred-state').addClass('d-none');
+
+            }else {
+                $('#view-toggle').html('<i class="fa-solid fa-expand">');
+                $('.inferred-parent').removeClass('col-xl-6').addClass('col-xl-12');
+                $('.graph-charts').addClass('d-none');
+                $('.stats-card').addClass('d-none');
+
+                $('.inferred-child').attr('style','height: 750px;');
+                $('#inferred-stream').attr('style','height: 100%; max-height: 670px; width: 100%; margin: auto; object-fit: contain;');
+                $('#inferred-state').removeClass('d-none');
+            }
+
+            expanded = !expanded;
+
+        });
+
+        analyzer();
+
+    });
+
+</script>
+{% endblock javascripts %}

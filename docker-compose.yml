@@ -1,0 +1,16 @@
+version: '3'
+services:
+  web:
+    build: .
+    image: imammasleap/cmrpack:v3
+    ports:
+      - 8000:8000
+#    environment:
+#      - DJANGO_SETTINGS_MODULE=pos.settings
+    command: >
+      /bin/bash -c "python manage.py makemigrations  --noinput
+      && python manage.py migrate  --noinput
+      && python manage.py shell < createsuperuser.py
+      && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app

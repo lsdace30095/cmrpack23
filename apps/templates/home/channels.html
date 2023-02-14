@@ -1,0 +1,215 @@
+{% extends "layouts/base.html" %}
+{% block title %} Transactions {% endblock %}
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<style>
+.dt-right {
+    text-align: right;
+}
+
+</style>
+{% endblock stylesheets %}
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <h2 class="h4">All Channels</h2>
+        <p class="mb-0">All the input sources including, Images, videos, RTMP, RTSP etc.</p>
+    </div>
+    <div class="mb-2 mb-md-0">
+        <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#createChannelModal">&nbsp;<i
+                class="fa-solid fa-plus"></i>&nbsp;&nbsp;Add New Channel
+        </button>
+        <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#importChannelModal">&nbsp;
+            <i class="fa-solid fa-file-import"></i>&nbsp;&nbsp;Import
+        </button>
+        <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exportChannelModal">&nbsp;
+            <i class="fa-solid fa-file-export"></i>&nbsp;&nbsp;Export
+        </button>
+
+        {% if view == 'list' %}
+        <button type="button" class="btn btn-dark" onclick="location.href='?view=grid'">&nbsp;
+            <i class="fa-solid fa-list view-icon"></i>&nbsp;&nbsp;List View
+        </button>
+        {% else %}
+        <button type="button" class="btn btn-dark" onclick="window.stop();location.href='?view=list'">&nbsp;
+            <i class="fa-solid fa-grip view-icon"></i>&nbsp;&nbsp;Grid View
+        </button>
+        {% endif %}
+
+    </div>
+</div>
+
+<div class="card card-body border-0 table-wrapper table-responsive">
+
+    {% if view == 'list' %}
+    <table class="table table-striped" id="sortTable">
+        <thead>
+        <tr>
+            <th class="border-gray-200" style="width: 10%">Thumbnail</th>
+            <th class="border-gray-200" style="width: 10%">Channel Id</th>
+            <th class="border-gray-200">Title</th>
+            <th class="border-gray-200">Channel type</th>
+            <th class="border-gray-200" style="text-align: right">Action</th>
+        </tr>
+        </thead>
+    </table>
+    {% else %}
+    <div class="row">
+
+        {% if channels %}
+        {% for channel in channels %}
+        <tr>
+            <div class="col-lg-4 col-md-4 col-sm-6 col-12 d-flex flex-column align-content-center mb-2">
+                <div style="height: 400px;">
+                    <div class="rounded position-relative d-flex align-items-center justify-content-center h-100"
+                         style="background-color:#000;">
+
+
+                        <img src="{{ ASSETS_ROOT }}/img/gif/spinner.gif"
+                             class="position-relative"
+                             style="height:80px; width:80px; object-fit: contain;">
+
+                        <img id="inferred-stream" src="{% url 'video_feed' %}?channel={{channel.id}}"
+                             alt="Error!!"
+                             class="position-absolute"
+                             style='height: 100%; max-height: 520px; width: 100%; margin: auto; object-fit: contain;'>
+
+                    </div>
+                </div>
+            </div>
+        </tr>
+        {% endfor %}
+        {% endif %}
+
+
+    </div>
+    <div class="pagination">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                {% if channels.has_previous %}
+                <li class="page-item"><button class="page-link" onclick="window.stop();location.href='?view=grid&page={{ channels.previous_page_number  }}'">Previous</button>
+                </li>
+                {% endif %}
+                <li class="page-item"><a class="page-link" href="#">
+                    Page {{ channels.number }} of {{ channels.paginator.num_pages }}.
+                </a></li>
+                {% if channels.has_next %}
+                <li class="page-item"><button class="page-link" onclick="window.stop();location.href='?view=grid&page={{ channels.next_page_number  }}'">Next</button></li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+
+    $(document).ready(function () {
+
+        var table = $('#sortTable').dataTable({
+            serverSide: true,
+            sAjaxSource: "/channels-list/",
+            columns: [
+                {
+                    name: "jpeg_url",
+                    data: 5,
+                    render: function (data) {
+                        if( data != null) {
+                            return `<img class="bg-light rounded" style="width:80px; height:60px; object-fit: cover;"
+                                     src="${data}"/>`;
+                        }else {
+                            return `<img class="bg-light bg-gradient rounded" style="width:80px; height:60px; object-fit: contain;"
+                                     src="https://img.icons8.com/fluency/240/null/link.png"/>`;
+                        }
+                    }
+                },
+                {name: "id", data: 0},
+                {name: "camera_name", data: 2},
+                {
+                    name: "source",
+                    data: 1,
+                    render: function (data) {
+                        var src = "";
+                        if(data === "Video"){
+                            src = "https://img.icons8.com/fluency/48/null/movies-folder--v2.png";
+                        }else if(data === "Image"){
+                            src = "https://img.icons8.com/fluency/48/null/pictures-folder--v2.png"
+                        }else {
+                            src = "https://img.icons8.com/fluency/48/null/cloud-folder--v2.png"
+                        }
+                        return `<img src="${src}" alt="logo"/>`;
+                    }
+                },
+                {
+                    name: "source",
+                    data: 1,
+                    className: 'dt-right',
+                    render: function (data, type, row ) {
+
+                        var content = '<span class="text-right">';
+                        if(data === "Video"){
+
+                           content = `<a class="remove-underline" href="{% url 'dashboard' %}?id=${row[0]}">
+                                <button class="btn btn-success mb-2 action-button">
+                                    <i class="fa-solid fa-play" style="color:#fff;"></i>
+                                </button>
+                            </a>`;
+
+                        }else if(data === "Image"){
+
+                           content = `<a class="remove-underline" href="{% url 'dashboard' %}?id=${row[0]}">
+                                <button class="btn btn-success mb-2 action-button">
+                                    <i class="fa-solid fa-magnifying-glass" style="color:#fff;"></i>
+                                </button>
+                            </a>`;
+
+                        }else {
+
+                           content = `<a class="remove-underline"
+                               href="{% url 'dashboard' %}?id=${row[0]}">
+                                <button class="btn btn-success mb-2 action-button">
+                                    <i class="fa-solid fa-eye" style="color:#fff;"></i>
+                                </button>
+                            </a>`;
+
+                        }
+
+                        if("{{ user.is_superuser }}") {
+
+                           content += `<a class="remove-underline" href="/admin/home/cctvchannel/${row[0]}/change/" target="_blank">
+                                <button class="btn btn-warning mb-2 action-button">
+                                    <i class="fa-solid fa-pen" style="color:#fff;"></i>
+                                </button>
+                            </a>
+                            <a class="remove-underline" href="/admin/home/cctvchannel/${row[0]}/delete" target="_blank">
+                                <button class="btn btn-danger mb-2 action-button">
+                                    <i class="fa-solid fa-trash" style="color:#fff;"></i>
+                                </button>
+                            </a>`;
+
+                        }
+
+                        return content + '</span>';
+
+                    }
+                }
+            ],
+        });
+
+        waitingDialog.hide();
+
+        $("#import_channel_form").on("submit", function(){
+           waitingDialog.show('Importing Channel. Please wait..');
+           return true;
+         })
+
+
+    });
+
+
+</script>
+{% endblock javascripts %}
