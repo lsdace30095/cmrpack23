@@ -22,7 +22,7 @@ jobs:
     - name: Log in to registry
       uses: docker/login-action@v1
       with:
-        registry: https://hub.docker.com/repository/docker/lsdace89169/
+        registry: https://hub.docker.com/
         username: ${{ secrets.AzureAppService_ContainerUsername_a01ff3bd0ba04f5c80407ec0199f588f }}
         password: ${{ secrets.AzureAppService_ContainerPassword_35b7bb1d6cf04ea69c21b627f84a24fb }}
 
