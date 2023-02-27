@@ -166,4 +166,5 @@ CORS_ALLOWED_ORIGINS = [
     "https://smartcity23.sensetrafficpulse.com",
     "https://smartcity23.traffictv.info",
     "https://smartcity23.dace-it.us",
+    "https://smartcity23.azurewebsites.net/login/",
 ]
