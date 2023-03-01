@@ -41,7 +41,7 @@ DEBUG = True
 # Assets Management
 ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets')
 
-ALLOWED_HOSTS = ['localhost', 'localhost:8000', '127.0.0.1','https://smartcity23.azurewebsites.net', 'smartcity23.azurewebsites.net', '0.0.0.0', '.azurewebsites', '.dace-it.us', '.sensetrafficpulse.com', env('SERVER', default='127.0.0.1')]
+ALLOWED_HOSTS = ['localhost', 'localhost:8000', '127.0.0.1','https://smartcity23.azurewebsites.net', 'smartcity23.azurewebsites.net', '0.0.0.0', '.azurewebsites', '.dace-it.us', '.sensetrafficpulse.com', '34.88.151.155' env('SERVER', default='127.0.0.1')]
 
 # Application definition
 
@@ -162,9 +162,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "https://smartcity23.azurewebsites.net",
-    "https://smartcity23.sensetrafficpulse.com",
-    "https://smartcity23.traffictv.info",
-    "https://smartcity23.dace-it.us",
-    "https://smartcity23.azurewebsites.net/login/",
+    'https://smartcity23.azurewebsites.net',
+    'https://smartcity23.sensetrafficpulse.com',
+    'https://smartcity23.traffictv.info',
+    'https://smartcity23.dace-it.us',
+    'https://smartcity23.azurewebsites.net/login/',
+    '34.88.151.155',
 ]
