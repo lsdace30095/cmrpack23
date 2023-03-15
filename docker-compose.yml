@@ -2,7 +2,7 @@ version: '3'
 services:
   web:
     build: .
-    image: imammasleap/cmrpack:v3
+    image: lsdace89169/cmrpack23:latest
     ports:
       - 8000:8000
 #    environment:
